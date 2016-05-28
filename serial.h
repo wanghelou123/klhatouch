@@ -26,7 +26,7 @@ class serial
 public:
 	serial(char *devName, int _baudRate, int _dataBit, char _parity, int _stopBit);
 	~serial();
-	int serialWrite(unsigned char *&buf, int size);
+	int serialWrite(unsigned char *buf, int size);
 	int serialRead(unsigned char *received_string);
 	int serialInit();
 	int serialRestart();

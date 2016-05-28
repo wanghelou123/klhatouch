@@ -10,7 +10,7 @@ class ch2oSensor {
 		int getData();
 	private:
 		unsigned char cmd[9];
-		unsigned char recv_buffer[9];
+		unsigned char recv_buffer[2048];
 		serial * myserial;
 };
 #endif

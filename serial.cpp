@@ -50,7 +50,7 @@ int serial::serialOpen()
 	return 0;
 }
 
-int serial::serialWrite(unsigned char *&buf, int size)
+int serial::serialWrite(unsigned char *buf, int size)
 {
 	int n;
 	n = write(fd, (void *)buf, size);

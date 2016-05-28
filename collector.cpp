@@ -2,60 +2,74 @@
 #include "ch2oSensor.h"
 #include "pm2_5Sensor.h"
 #include "sht11.h"
+#include "htu21d.h"
+#include "shmMem.h"
 #include <iostream>
 using namespace std;
+#define HTU21D
+#define CO2
+#define CH2O
+#define PM2_5
+#define MS5611
 
 int main()
 {
-# if 0
-	int n = 0;
-	serial myserial("/dev/ttySAC1", 9600, 8, 'n', 1);
-	unsigned char cmd[]={0xFF, 0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79};
-	unsigned char recv_buffer[20];
-	unsigned char *p = cmd;
-	int value=0;
+	//共享内存
+	shmMem myshm;
+	//温湿度传感器
+	htu21d myhtu21d;
+	//二氧化碳
+	co2Sensor myco2Sensor;
+	//甲醛
+	ch2oSensor mych2oSensor;
+	//pm2.5 pm10
+	pm2_5Sensor _pm2_5Sensor;
+
+	//sht11 _sht11;
 	while(1) {
-		p=cmd;
-		n = myserial.serialWrite(p, sizeof(cmd));
-		printf("Write %d bytes  to sensor\n", n);
-		for(int i=0; i<n; i++){
-			printf("%.2x ", p[i]);	
-		}
-		printf("\n");
+#if 1
+		//温度
+		myshm.setval(0, myhtu21d.get_temperature());
+		//湿度
+		myshm.setval(1, myhtu21d.get_humidity());
+		//二氧化碳
+		myshm.setval(2, myco2Sensor.getData());
+		//大气压力
+		//myshm.setval(3, myco2Sensor.getData());
+		//甲醛 ch2o
+		myshm.setval(4, mych2oSensor.getData());
 
-		p = recv_buffer;
-		n = myserial.serialRead(p);
-		printf("receive %d bytes\n", n);
-
-		for(int i=0; i<n; i++) {
-			printf("%.2x ", recv_buffer[i]);	
-		}
-		printf("\n");
-
-		value = recv_buffer[2]*256 + recv_buffer[3];
-		printf("vlaue = %d\n", value);
-		::sleep(1);
-	}
+		_pm2_5Sensor.getData();
+		//pm1.0
+		myshm.setval(5, _pm2_5Sensor.getStdpm1_0());
+		//pm2.5
+		myshm.setval(6, _pm2_5Sensor.getStdpm2_5());
+		//pm10
+		myshm.setval(7, _pm2_5Sensor.getStdpm10());
+	#endif
+#ifdef HTU21D
+		printf("temperature: %d\n", myhtu21d.get_temperature());
+		printf("humidity: %d\n", myhtu21d.get_humidity());
 #endif
-	//co2Sensor myco2Sensor;
-	//ch2oSensor mych2oSensor;
 
-	//pm2_5Sensor _pm2_5Sensor;
-	sht11 _sht11;
-	while(1) {
-		//printf("co2 is %d ppm\n", myco2Sensor.getData());
-		//printf("ch2o is %d ppb\n", mych2oSensor.getData());
-		//_pm2_5Sensor.getData();
-		//printf("std pm1.0 is %d\n", _pm2_5Sensor.getStdpm1_0());
-		//printf("std pm2.5 is %d\n", _pm2_5Sensor.getStdpm2_5());
-		//printf("std pm10 is %d\n", _pm2_5Sensor.getStdpm10());
+#ifdef CO2
+		printf("co2 is %d ppm\n", myco2Sensor.getData());
+
+#endif
+#ifdef CH2O
+		printf("ch2o is %d ppb\n", mych2oSensor.getData());
+#endif
+#ifdef PM2_5
+		_pm2_5Sensor.getData();
+		printf("std pm1.0 is %d\n", _pm2_5Sensor.getStdpm1_0());
+		printf("std pm2.5 is %d\n", _pm2_5Sensor.getStdpm2_5());
+		printf("std pm10 is %d\n", _pm2_5Sensor.getStdpm10());
+#endif
+
 		//printf("air pm1.0 is %d\n", _pm2_5Sensor.getAirpm1_0());
 		//printf("air pm2.5 is %d\n", _pm2_5Sensor.getAirpm2_5());
 		//printf("air pm10 is %d\n", _pm2_5Sensor.getAirpm10());
-
-		printf("temperature: <%.2f> °C\n", float(_sht11.get_temperature())/1000);
-		printf("humidity: <%.2f> %RH\n", float(_sht11.get_humidity())/1000);
-		::sleep(1);
+		::sleep(5);
 	}
 
 	return 0;

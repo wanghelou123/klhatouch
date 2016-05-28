@@ -22,7 +22,7 @@ LIBS 	+=  -llog4cplus
 LIBS 	+=  -lpthread
 LIBS 	+=  -lm
 
-collector: collector.o Log.o serial.o co2Sensor.o ch2oSensor.o pm2_5Sensor.o sht11.o
+collector: collector.o Log.o serial.o co2Sensor.o ch2oSensor.o pm2_5Sensor.o sht11.o htu21d.o shmMem.o
 	$(CC) $(CFLAGS) $(LIBS) $(INCS) -o $@ $^ 
 	$(STRIP) $@
 

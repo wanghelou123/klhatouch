@@ -13,7 +13,11 @@ pm2_5Sensor::pm2_5Sensor()
 	cmd[6] = 0x00;
 	cmd[7] = 0x00;
 	cmd[8] = 0x79;
-	myserial = new serial("/dev/ttySAC1", 9600, 8, 'n', 1);
+	myserial = new serial("/dev/ttyO3", 9600, 8, 'n', 1);
+
+	unsigned char require_mode_cmd[] = 
+	{0xFF, 0x01, 0x78, 0x40, 0x00, 0x00, 0x00, 0x00, 0x47};
+	myserial->serialWrite(require_mode_cmd, sizeof(require_mode_cmd));
 }
 
 pm2_5Sensor::~pm2_5Sensor()
@@ -34,14 +38,16 @@ int pm2_5Sensor::getData()
 
 	memset(recv_buffer, 0, sizeof(recv_buffer));
 #endif
-	unsigned char *p = recv_buffer;
+	unsigned char * p = recv_buffer;
 	int n = myserial->serialRead(p);
+#if 0
 	printf("receive %d bytes\n", n);
 
 	for(int i=0; i<n; i++) {
 		printf("%.2x ", recv_buffer[i]);	
 	}
 	printf("\n");
+#endif
 
 	//计算ppm值
 	int value = (recv_buffer[2]<<8) + recv_buffer[3];

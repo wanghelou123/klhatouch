@@ -16,7 +16,7 @@ class pm2_5Sensor{
 		int getAirpm10();
 	private:
 		unsigned char cmd[9];
-		unsigned char recv_buffer[30];
+		unsigned char recv_buffer[256];
 		serial * myserial;
 };
 #endif
